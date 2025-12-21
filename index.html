@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Selection Sort + Speed Control</title>
+  <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+  <h2>Selection Sort (Iteratif & Rekursif)</h2>
+
+  <div id="array"></div>
+
+  <div class="controls">
+    <button onclick="runIterative()">Iteratif</button>
+    <button onclick="runRecursive()">Rekursif</button>
+    <button onclick="fastFinish()">⚡ Cepat Selesai</button>
+    <button onclick="resetData()">🔄 Reset</button>
+  </div>
+
+  <div class="controls">
+    <label>Kecepatan:
+      <input type="range" min="10" max="1000" value="300" id="speedSlider">
+      <span id="speedValue">300 ms</span>
+    </label>
+  </div>
+
+  <script src="script.js"></script>
+
+</body>
+
+</html>
