@@ -3,14 +3,26 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Selection Sort + Speed Control</title>
+  <title>Selection Sort + Analisis Kompleksitas</title>
   <link rel="stylesheet" href="style.css">
-
 </head>
 
 <body>
 
   <h2>Selection Sort (Iteratif & Rekursif)</h2>
+
+  <!-- MENU JUMLAH DATA -->
+  <div class="controls">
+    <label>Jumlah Data:
+      <select id="dataSize" onchange="generateData()">
+        <option value="5">5 Data</option>
+        <option value="10">10 Data</option>
+        <option value="50">50 Data</option>
+        <option value="100">100 Data</option>
+        <option value="1000">1000 Data</option>
+      </select>
+    </label>
+  </div>
 
   <div id="array"></div>
 
