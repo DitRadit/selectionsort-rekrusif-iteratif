@@ -9,6 +9,10 @@ let fastMode = false;
 let comparisons = 0;
 let swaps = 0;
 
+let isAscending = true; 
+let finishedNormally = false;
+
+
 /* ================= ELEMENT ================= */
 const container = document.getElementById("array");
 const speedSlider = document.getElementById("speedSlider");
@@ -29,7 +33,6 @@ function sleep(ms, id) {
   });
 }
 
-
 function updateStats() {
   compareText.innerText = comparisons;
   swapText.innerText = swaps;
@@ -40,6 +43,12 @@ function disableButtons(state) {
   recBtn.disabled = state;
 }
 
+/* ================= ORDER ================= */
+function setOrder(order) {
+  isAscending = order === "asc";
+  resetData();
+}
+
 /* ================= SPEED ================= */
 speedSlider.oninput = () => {
   speed = speedSlider.value;
@@ -48,7 +57,7 @@ speedSlider.oninput = () => {
 
 /* ================= GENERATE DATA ================= */
 function generateData() {
-  cancelAnimation();   // 🔥 FIX UTAMA
+  cancelAnimation();
   fastMode = false;
 
   const size = parseInt(document.getElementById("dataSize").value);
@@ -63,8 +72,6 @@ function generateData() {
 
   resetData();
 }
-
-
 
 /* ================= RENDER ================= */
 function render() {
@@ -89,7 +96,7 @@ function render() {
 
 /* ================= RESET ================= */
 function resetData() {
-  cancelAnimation();   // 🔥 BIAR AMAN
+  cancelAnimation();
 
   comparisons = 0;
   swaps = 0;
@@ -99,12 +106,16 @@ function resetData() {
   render();
 }
 
+/* ================= COMPARE HELPER ================= */
+function isBetter(a, b) {
+  return isAscending ? a < b : a > b;
+}
 
 /* ================= SELECTION SORT ITERATIVE ================= */
 async function selectionSort(A, n, id) {
   for (let pass = 0; pass < n - 1; pass++) {
 
-    if (id !== animationId) return; // 🛑 STOP
+    if (id !== animationId) return;
 
     A.forEach(x => x.state = "default");
 
@@ -122,7 +133,7 @@ async function selectionSort(A, n, id) {
       render();
       await sleep(speed, id);
 
-      if (A[j].nim < A[minIdx].nim) {
+      if (isBetter(A[j].nim, A[minIdx].nim)) {
         A[minIdx].state = "default";
         minIdx = j;
         A[minIdx].state = "min";
@@ -150,10 +161,10 @@ async function selectionSort(A, n, id) {
   render();
 }
 
-
 /* ================= SELECTION SORT RECURSIVE ================= */
 async function selectionSortRecursive(A, n, pass, id) {
   if (id !== animationId) return;
+
   if (pass >= n - 1) {
     A[n - 1].state = "sorted";
     render();
@@ -176,7 +187,7 @@ async function selectionSortRecursive(A, n, pass, id) {
     render();
     await sleep(speed, id);
 
-    if (A[j].nim < A[minIdx].nim) {
+    if (isBetter(A[j].nim, A[minIdx].nim)) {
       A[minIdx].state = "default";
       minIdx = j;
       A[minIdx].state = "min";
@@ -208,12 +219,14 @@ function selectionSortInstant(A) {
 
   for (let i = 0; i < n - 1; i++) {
     let minIdx = i;
+
     for (let j = i + 1; j < n; j++) {
       comparisons++;
-      if (A[j].nim < A[minIdx].nim) {
+      if (isBetter(A[j].nim, A[minIdx].nim)) {
         minIdx = j;
       }
     }
+
     if (minIdx !== i) {
       [A[i], A[minIdx]] = [A[minIdx], A[i]];
       swaps++;
@@ -227,13 +240,13 @@ function selectionSortInstant(A) {
 
 function selectionSortInstantRecursive(A, i = 0) {
   let n = A.length;
-
   if (i >= n - 1) return;
 
   let minIdx = i;
+
   for (let j = i + 1; j < n; j++) {
     comparisons++;
-    if (A[j].nim < A[minIdx].nim) {
+    if (isBetter(A[j].nim, A[minIdx].nim)) {
       minIdx = j;
     }
   }
@@ -246,8 +259,6 @@ function selectionSortInstantRecursive(A, i = 0) {
   selectionSortInstantRecursive(A, i + 1);
 }
 
-
-
 /* ================= CONTROL ================= */
 async function runIterative() {
   cancelAnimation();
@@ -257,14 +268,11 @@ async function runIterative() {
   comparisons = swaps = 0;
   updateStats();
 
-  const startTime = performance.now(); // ⏱️ START
+  const startTime = performance.now();
 
   if (A.length > 200) {
     selectionSortInstant(A);
-    const endTime = performance.now(); // ⏱️ END
-    console.log(
-      `[ITERATIVE - INSTANT] Runtime: ${(endTime - startTime).toFixed(2)} ms`
-    );
+    console.log(`[ITERATIVE - INSTANT] Runtime: ${(performance.now() - startTime).toFixed(2)} ms`);
     disableButtons(false);
     return;
   }
@@ -272,14 +280,10 @@ async function runIterative() {
   await selectionSort(A, A.length, currentId);
 
   if (currentId === animationId) {
-    const endTime = performance.now(); // ⏱️ END
-    console.log(
-      `[ITERATIVE - ANIMATED] Runtime: ${(endTime - startTime).toFixed(2)} ms`
-    );
+    console.log(`[ITERATIVE - ANIMATED] Runtime: ${(performance.now() - startTime).toFixed(2)} ms`);
     disableButtons(false);
   }
 }
-
 
 async function runRecursive() {
   cancelAnimation();
@@ -289,14 +293,11 @@ async function runRecursive() {
   comparisons = swaps = 0;
   updateStats();
 
-  const startTime = performance.now(); // ⏱️ START
+  const startTime = performance.now();
 
   if (A.length > 200) {
     selectionSortInstant(A);
-    const endTime = performance.now(); // ⏱️ END
-    console.log(
-      `[RECURSIVE - INSTANT] Runtime: ${(endTime - startTime).toFixed(2)} ms`
-    );
+    console.log(`[RECURSIVE - INSTANT] Runtime: ${(performance.now() - startTime).toFixed(2)} ms`);
     disableButtons(false);
     return;
   }
@@ -304,15 +305,10 @@ async function runRecursive() {
   await selectionSortRecursive(A, A.length, 0, currentId);
 
   if (currentId === animationId) {
-    const endTime = performance.now(); // ⏱️ END
-    console.log(
-      `[RECURSIVE - ANIMATED] Runtime: ${(endTime - startTime).toFixed(2)} ms`
-    );
+    console.log(`[RECURSIVE - ANIMATED] Runtime: ${(performance.now() - startTime).toFixed(2)} ms`);
     disableButtons(false);
   }
 }
-
-
 
 function fastFinish() {
   fastMode = true;
@@ -321,19 +317,14 @@ function fastFinish() {
 
   const startTime = performance.now();
   selectionSortInstant(A);
-  const endTime = performance.now();
 
-  console.log(
-    `[FAST FINISH - INSTANT] Runtime: ${(endTime - startTime).toFixed(2)} ms`
-  );
+  console.log(`[FAST FINISH] Runtime: ${(performance.now() - startTime).toFixed(2)} ms`);
 }
-
 
 function cancelAnimation() {
-  animationId++;         
-  disableButtons(false); 
+  animationId++;
+  disableButtons(false);
 }
-
 
 /* ================= INIT ================= */
 generateData();

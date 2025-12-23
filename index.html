@@ -29,6 +29,10 @@
           <option value="1000">1000</option>
         </select>
       </label>
+      <select onchange="setOrder(this.value)">
+        <option value="asc">Ascending</option>
+        <option value="desc">Descending</option>
+      </select>
     </div>
 
     <!-- VISUALIZATION -->
@@ -49,6 +53,7 @@
         <input type="range" min="10" max="1000" value="300" id="speedSlider">
         <span id="speedValue">300 ms</span>
       </label>
+
     </div>
 
     <!-- STATUS -->
@@ -68,6 +73,9 @@
       <span class="swap">Swap</span>
       <span class="sorted">Sorted</span>
     </div>
+
+
+
 
   </main>
 
