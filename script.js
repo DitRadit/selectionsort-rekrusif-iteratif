@@ -179,6 +179,31 @@ function selectionSortInstant(A) {
   render();
 }
 
+function selectionSortInstantRecursive(A, n = A.length, pass = 1) {
+  if (pass > n - 1) {
+    A.forEach(x => x.color = "gold");
+    render();
+    return;
+  }
+
+  let idx = pass - 1;
+  let i = pass;
+
+  while (i < n) {
+    if (A[idx].nim > A[i].nim) {
+      idx = i;
+    }
+    i++;
+  }
+
+  let temp = A[pass - 1];
+  A[pass - 1] = A[idx];
+  A[idx] = temp;
+
+  selectionSortInstantRecursive(A, n, pass + 1);
+}
+
+
 /* ================= CONTROL ================= */
 function resetData() {
   fastMode = false;
@@ -186,28 +211,55 @@ function resetData() {
   render();
 }
 
-function runIterative() {
+async function runIterative() {
+  const start = performance.now();
+
   if (A.length > 200 || fastMode) {
     selectionSortInstant(A);
   } else {
     fastMode = false;
-    selectionSort(A, A.length);
+    await selectionSort(A, A.length);
   }
+
+  const end = performance.now();
+  console.log(`Runtime Iteratif: ${(end - start).toFixed(2)} ms`);
 }
 
-function runRecursive() {
+
+async function runRecursive() {
+  const start = performance.now();
+
   if (A.length > 200 || fastMode) {
     selectionSortInstant(A);
   } else {
     fastMode = false;
-    selectionSortRecursive(A, A.length);
+    await selectionSortRecursive(A, A.length);
   }
+
+  const end = performance.now();
+  console.log(`Runtime Rekursif: ${(end - start).toFixed(2)} ms`);
 }
+
 
 function fastFinish() {
   fastMode = true;
-  selectionSortInstant(A);
+
+  const A1 = JSON.parse(JSON.stringify(A));
+  const A2 = JSON.parse(JSON.stringify(A));
+
+  const start = performance.now();
+  selectionSortInstant(A1);
+  const end = performance.now();
+
+  const start1 = performance.now();
+  selectionSortInstantRecursive(A2);
+  const end1 = performance.now();
+
+  console.log(`Runtime Instant (Iteratif): ${(end - start).toFixed(2)} ms`);
+  console.log(`Runtime Instant (Rekursif): ${(end1 - start1).toFixed(2)} ms`);
 }
+
+
 
 /* ================= INIT ================= */
 generateData();
