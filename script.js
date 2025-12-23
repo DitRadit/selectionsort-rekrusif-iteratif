@@ -225,17 +225,46 @@ function selectionSortInstant(A) {
   render();
 }
 
+function selectionSortInstantRecursive(A, i = 0) {
+  let n = A.length;
+
+  if (i >= n - 1) return;
+
+  let minIdx = i;
+  for (let j = i + 1; j < n; j++) {
+    comparisons++;
+    if (A[j].nim < A[minIdx].nim) {
+      minIdx = j;
+    }
+  }
+
+  if (minIdx !== i) {
+    [A[i], A[minIdx]] = [A[minIdx], A[i]];
+    swaps++;
+  }
+
+  selectionSortInstantRecursive(A, i + 1);
+}
+
+
+
 /* ================= CONTROL ================= */
 async function runIterative() {
-  cancelAnimation();        // pastikan bersih
+  cancelAnimation();
   const currentId = animationId;
 
   disableButtons(true);
   comparisons = swaps = 0;
   updateStats();
 
+  const startTime = performance.now(); // ⏱️ START
+
   if (A.length > 200) {
     selectionSortInstant(A);
+    const endTime = performance.now(); // ⏱️ END
+    console.log(
+      `[ITERATIVE - INSTANT] Runtime: ${(endTime - startTime).toFixed(2)} ms`
+    );
     disableButtons(false);
     return;
   }
@@ -243,9 +272,14 @@ async function runIterative() {
   await selectionSort(A, A.length, currentId);
 
   if (currentId === animationId) {
+    const endTime = performance.now(); // ⏱️ END
+    console.log(
+      `[ITERATIVE - ANIMATED] Runtime: ${(endTime - startTime).toFixed(2)} ms`
+    );
     disableButtons(false);
   }
 }
+
 
 async function runRecursive() {
   cancelAnimation();
@@ -255,8 +289,14 @@ async function runRecursive() {
   comparisons = swaps = 0;
   updateStats();
 
+  const startTime = performance.now(); // ⏱️ START
+
   if (A.length > 200) {
     selectionSortInstant(A);
+    const endTime = performance.now(); // ⏱️ END
+    console.log(
+      `[RECURSIVE - INSTANT] Runtime: ${(endTime - startTime).toFixed(2)} ms`
+    );
     disableButtons(false);
     return;
   }
@@ -264,21 +304,34 @@ async function runRecursive() {
   await selectionSortRecursive(A, A.length, 0, currentId);
 
   if (currentId === animationId) {
+    const endTime = performance.now(); // ⏱️ END
+    console.log(
+      `[RECURSIVE - ANIMATED] Runtime: ${(endTime - startTime).toFixed(2)} ms`
+    );
     disableButtons(false);
   }
 }
+
 
 
 function fastFinish() {
   fastMode = true;
   comparisons = swaps = 0;
   updateStats();
+
+  const startTime = performance.now();
   selectionSortInstant(A);
+  const endTime = performance.now();
+
+  console.log(
+    `[FAST FINISH - INSTANT] Runtime: ${(endTime - startTime).toFixed(2)} ms`
+  );
 }
 
+
 function cancelAnimation() {
-  animationId++;          // matikan semua animasi
-  disableButtons(false);  // 🔥 WAJIB
+  animationId++;         
+  disableButtons(false); 
 }
 
 
