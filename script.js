@@ -2,7 +2,7 @@ let dataAwal = [];
 let A = [];
 let fastMode = false;
 
-// SPEED CONTROL
+/* ================= SPEED CONTROL ================= */
 const speedSlider = document.getElementById("speedSlider");
 const speedValue = document.getElementById("speedValue");
 let speed = speedSlider.value;
@@ -13,24 +13,27 @@ speedSlider.oninput = () => {
 };
 
 function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, fastMode ? 0 : ms));
+  return new Promise(resolve =>
+    setTimeout(resolve, fastMode ? 0 : ms)
+  );
 }
 
-// GENERATE DATA
+/* ================= GENERATE DATA ================= */
 function generateData() {
   const size = parseInt(document.getElementById("dataSize").value);
   dataAwal = [];
 
   for (let i = 0; i < size; i++) {
     dataAwal.push({
-      nim: Math.floor(Math.random() * 90) + 10
+      nim: Math.floor(Math.random() * 90) + 10,
+      color: "steelblue"
     });
   }
 
   resetData();
 }
 
-// RENDER BAR
+/* ================= RENDER ================= */
 const container = document.getElementById("array");
 
 function render() {
@@ -46,7 +49,7 @@ function render() {
     const bar = document.createElement("div");
     bar.className = "bar";
     bar.style.height = mhs.nim * 3 + "px";
-    bar.style.backgroundColor = mhs.color || "steelblue";
+    bar.style.backgroundColor = mhs.color;
 
     wrap.appendChild(value);
     wrap.appendChild(bar);
@@ -54,7 +57,7 @@ function render() {
   });
 }
 
-// SELECTION SORT ITERATIF
+/* ================= SELECTION SORT ITERATIF (ANIMASI) ================= */
 async function selectionSort(A, n) {
   let pass = 1;
 
@@ -102,7 +105,7 @@ async function selectionSort(A, n) {
   render();
 }
 
-// SELECTION SORT REKURSIF
+/* ================= SELECTION SORT REKURSIF (ANIMASI) ================= */
 async function selectionSortRecursive(A, n, pass = 1) {
   if (pass > n - 1) {
     A[n - 1].color = "gold";
@@ -149,7 +152,34 @@ async function selectionSortRecursive(A, n, pass = 1) {
   await selectionSortRecursive(A, n, pass + 1);
 }
 
-// CONTROL
+/* ================= SELECTION SORT LANGSUNG (NO ANIMATION) ================= */
+function selectionSortInstant(A) {
+  let n = A.length;
+  let pass = 1;
+
+  while (pass <= n - 1) {
+    let idx = pass - 1;
+    let i = pass;
+
+    while (i < n) {
+      if (A[idx].nim > A[i].nim) {
+        idx = i;
+      }
+      i++;
+    }
+
+    let temp = A[pass - 1];
+    A[pass - 1] = A[idx];
+    A[idx] = temp;
+
+    pass++;
+  }
+
+  A.forEach(x => x.color = "gold");
+  render();
+}
+
+/* ================= CONTROL ================= */
 function resetData() {
   fastMode = false;
   A = JSON.parse(JSON.stringify(dataAwal));
@@ -157,18 +187,27 @@ function resetData() {
 }
 
 function runIterative() {
-  if (A.length > 100) fastMode = true;
-  selectionSort(A, A.length);
+  if (A.length > 200 || fastMode) {
+    selectionSortInstant(A);
+  } else {
+    fastMode = false;
+    selectionSort(A, A.length);
+  }
 }
 
 function runRecursive() {
-  if (A.length > 100) fastMode = true;
-  selectionSortRecursive(A, A.length);
+  if (A.length > 200 || fastMode) {
+    selectionSortInstant(A);
+  } else {
+    fastMode = false;
+    selectionSortRecursive(A, A.length);
+  }
 }
 
 function fastFinish() {
   fastMode = true;
+  selectionSortInstant(A);
 }
 
-// INIT
+/* ================= INIT ================= */
 generateData();
