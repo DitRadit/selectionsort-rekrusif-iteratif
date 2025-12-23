@@ -1,55 +1,85 @@
+/* ================= GLOBAL DATA ================= */
+
+let animationId = 0;
+
 let dataAwal = [];
 let A = [];
 let fastMode = false;
 
-/* ================= SPEED CONTROL ================= */
+let comparisons = 0;
+let swaps = 0;
+
+/* ================= ELEMENT ================= */
+const container = document.getElementById("array");
 const speedSlider = document.getElementById("speedSlider");
 const speedValue = document.getElementById("speedValue");
+const compareText = document.getElementById("compareCount");
+const swapText = document.getElementById("swapCount");
+const iterBtn = document.getElementById("iterBtn");
+const recBtn = document.getElementById("recBtn");
+
 let speed = speedSlider.value;
 
+/* ================= UTIL ================= */
+function sleep(ms, id) {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      if (id === animationId) resolve();
+    }, fastMode ? 0 : ms);
+  });
+}
+
+
+function updateStats() {
+  compareText.innerText = comparisons;
+  swapText.innerText = swaps;
+}
+
+function disableButtons(state) {
+  iterBtn.disabled = state;
+  recBtn.disabled = state;
+}
+
+/* ================= SPEED ================= */
 speedSlider.oninput = () => {
   speed = speedSlider.value;
   speedValue.innerText = speed + " ms";
 };
 
-function sleep(ms) {
-  return new Promise(resolve =>
-    setTimeout(resolve, fastMode ? 0 : ms)
-  );
-}
-
 /* ================= GENERATE DATA ================= */
 function generateData() {
+  cancelAnimation();   // 🔥 FIX UTAMA
+  fastMode = false;
+
   const size = parseInt(document.getElementById("dataSize").value);
   dataAwal = [];
 
   for (let i = 0; i < size; i++) {
     dataAwal.push({
       nim: Math.floor(Math.random() * 90) + 10,
-      color: "steelblue"
+      state: "default"
     });
   }
 
   resetData();
 }
 
-/* ================= RENDER ================= */
-const container = document.getElementById("array");
 
+
+/* ================= RENDER ================= */
 function render() {
   container.innerHTML = "";
-  A.forEach(mhs => {
+  A.forEach(item => {
     const wrap = document.createElement("div");
     wrap.className = "bar-container";
 
     const value = document.createElement("div");
     value.className = "bar-value";
-    value.innerText = mhs.nim;
+    value.innerText = item.nim;
 
     const bar = document.createElement("div");
-    bar.className = "bar";
-    bar.style.height = mhs.nim * 3 + "px";
-    bar.style.backgroundColor = mhs.color;
+    bar.className = "bar " + item.state;
+    bar.style.height = item.nim * 3 + "px";
 
     wrap.appendChild(value);
     wrap.appendChild(bar);
@@ -57,208 +87,199 @@ function render() {
   });
 }
 
-/* ================= SELECTION SORT ITERATIF (ANIMASI) ================= */
-async function selectionSort(A, n) {
-  let pass = 1;
-
-  while (pass <= n - 1) {
-    A.forEach(x => x.color = "steelblue");
-
-    let idx = pass - 1;
-    A[idx].color = "green";
-    render();
-    await sleep(speed);
-
-    let i = pass;
-    while (i < n) {
-      A[i].color = "red";
-      render();
-      await sleep(speed);
-
-      if (A[idx].nim > A[i].nim) {
-        A[idx].color = "steelblue";
-        idx = i;
-        A[idx].color = "green";
-      } else {
-        A[i].color = "steelblue";
-      }
-      i++;
-    }
-
-    A[pass - 1].color = "orange";
-    A[idx].color = "orange";
-    render();
-    await sleep(speed);
-
-    let temp = A[pass - 1];
-    A[pass - 1] = A[idx];
-    A[idx] = temp;
-
-    A[pass - 1].color = "gold";
-    render();
-    await sleep(speed);
-
-    pass++;
-  }
-
-  A[n - 1].color = "gold";
-  render();
-}
-
-/* ================= SELECTION SORT REKURSIF (ANIMASI) ================= */
-async function selectionSortRecursive(A, n, pass = 1) {
-  if (pass > n - 1) {
-    A[n - 1].color = "gold";
-    render();
-    return;
-  }
-
-  A.forEach(x => x.color = "steelblue");
-
-  let idx = pass - 1;
-  A[idx].color = "green";
-  render();
-  await sleep(speed);
-
-  let i = pass;
-  while (i < n) {
-    A[i].color = "red";
-    render();
-    await sleep(speed);
-
-    if (A[idx].nim > A[i].nim) {
-      A[idx].color = "steelblue";
-      idx = i;
-      A[idx].color = "green";
-    } else {
-      A[i].color = "steelblue";
-    }
-    i++;
-  }
-
-  A[pass - 1].color = "orange";
-  A[idx].color = "orange";
-  render();
-  await sleep(speed);
-
-  let temp = A[pass - 1];
-  A[pass - 1] = A[idx];
-  A[idx] = temp;
-
-  A[pass - 1].color = "gold";
-  render();
-  await sleep(speed);
-
-  await selectionSortRecursive(A, n, pass + 1);
-}
-
-/* ================= SELECTION SORT LANGSUNG (NO ANIMATION) ================= */
-function selectionSortInstant(A) {
-  let n = A.length;
-  let pass = 1;
-
-  while (pass <= n - 1) {
-    let idx = pass - 1;
-    let i = pass;
-
-    while (i < n) {
-      if (A[idx].nim > A[i].nim) {
-        idx = i;
-      }
-      i++;
-    }
-
-    let temp = A[pass - 1];
-    A[pass - 1] = A[idx];
-    A[idx] = temp;
-
-    pass++;
-  }
-
-  A.forEach(x => x.color = "gold");
-  render();
-}
-
-function selectionSortInstantRecursive(A, n = A.length, pass = 1) {
-  if (pass > n - 1) {
-    A.forEach(x => x.color = "gold");
-    render();
-    return;
-  }
-
-  let idx = pass - 1;
-  let i = pass;
-
-  while (i < n) {
-    if (A[idx].nim > A[i].nim) {
-      idx = i;
-    }
-    i++;
-  }
-
-  let temp = A[pass - 1];
-  A[pass - 1] = A[idx];
-  A[idx] = temp;
-
-  selectionSortInstantRecursive(A, n, pass + 1);
-}
-
-
-/* ================= CONTROL ================= */
+/* ================= RESET ================= */
 function resetData() {
-  fastMode = false;
+  cancelAnimation();   // 🔥 BIAR AMAN
+
+  comparisons = 0;
+  swaps = 0;
+  updateStats();
+
   A = JSON.parse(JSON.stringify(dataAwal));
   render();
 }
 
-async function runIterative() {
-  const start = performance.now();
 
-  if (A.length > 200 || fastMode) {
-    selectionSortInstant(A);
-  } else {
-    fastMode = false;
-    await selectionSort(A, A.length);
+/* ================= SELECTION SORT ITERATIVE ================= */
+async function selectionSort(A, n, id) {
+  for (let pass = 0; pass < n - 1; pass++) {
+
+    if (id !== animationId) return; // 🛑 STOP
+
+    A.forEach(x => x.state = "default");
+
+    let minIdx = pass;
+    A[minIdx].state = "min";
+    render();
+    await sleep(speed, id);
+
+    for (let j = pass + 1; j < n; j++) {
+      if (id !== animationId) return;
+
+      A[j].state = "compare";
+      comparisons++;
+      updateStats();
+      render();
+      await sleep(speed, id);
+
+      if (A[j].nim < A[minIdx].nim) {
+        A[minIdx].state = "default";
+        minIdx = j;
+        A[minIdx].state = "min";
+      } else {
+        A[j].state = "default";
+      }
+    }
+
+    if (minIdx !== pass) {
+      A[pass].state = A[minIdx].state = "swap";
+      render();
+      await sleep(speed, id);
+
+      [A[pass], A[minIdx]] = [A[minIdx], A[pass]];
+      swaps++;
+      updateStats();
+    }
+
+    A[pass].state = "sorted";
+    render();
+    await sleep(speed, id);
   }
 
-  const end = performance.now();
-  console.log(`Runtime Iteratif: ${(end - start).toFixed(2)} ms`);
+  A[n - 1].state = "sorted";
+  render();
 }
 
 
-async function runRecursive() {
-  const start = performance.now();
-
-  if (A.length > 200 || fastMode) {
-    selectionSortInstant(A);
-  } else {
-    fastMode = false;
-    await selectionSortRecursive(A, A.length);
+/* ================= SELECTION SORT RECURSIVE ================= */
+async function selectionSortRecursive(A, n, pass, id) {
+  if (id !== animationId) return;
+  if (pass >= n - 1) {
+    A[n - 1].state = "sorted";
+    render();
+    return;
   }
 
-  const end = performance.now();
-  console.log(`Runtime Rekursif: ${(end - start).toFixed(2)} ms`);
+  A.forEach(x => x.state = "default");
+
+  let minIdx = pass;
+  A[minIdx].state = "min";
+  render();
+  await sleep(speed, id);
+
+  for (let j = pass + 1; j < n; j++) {
+    if (id !== animationId) return;
+
+    A[j].state = "compare";
+    comparisons++;
+    updateStats();
+    render();
+    await sleep(speed, id);
+
+    if (A[j].nim < A[minIdx].nim) {
+      A[minIdx].state = "default";
+      minIdx = j;
+      A[minIdx].state = "min";
+    } else {
+      A[j].state = "default";
+    }
+  }
+
+  if (minIdx !== pass) {
+    A[pass].state = A[minIdx].state = "swap";
+    render();
+    await sleep(speed, id);
+
+    [A[pass], A[minIdx]] = [A[minIdx], A[pass]];
+    swaps++;
+    updateStats();
+  }
+
+  A[pass].state = "sorted";
+  render();
+  await sleep(speed, id);
+
+  await selectionSortRecursive(A, n, pass + 1, id);
+}
+
+/* ================= INSTANT SORT ================= */
+function selectionSortInstant(A) {
+  let n = A.length;
+
+  for (let i = 0; i < n - 1; i++) {
+    let minIdx = i;
+    for (let j = i + 1; j < n; j++) {
+      comparisons++;
+      if (A[j].nim < A[minIdx].nim) {
+        minIdx = j;
+      }
+    }
+    if (minIdx !== i) {
+      [A[i], A[minIdx]] = [A[minIdx], A[i]];
+      swaps++;
+    }
+  }
+
+  A.forEach(x => x.state = "sorted");
+  updateStats();
+  render();
+}
+
+/* ================= CONTROL ================= */
+async function runIterative() {
+  cancelAnimation();        // pastikan bersih
+  const currentId = animationId;
+
+  disableButtons(true);
+  comparisons = swaps = 0;
+  updateStats();
+
+  if (A.length > 200) {
+    selectionSortInstant(A);
+    disableButtons(false);
+    return;
+  }
+
+  await selectionSort(A, A.length, currentId);
+
+  if (currentId === animationId) {
+    disableButtons(false);
+  }
+}
+
+async function runRecursive() {
+  cancelAnimation();
+  const currentId = animationId;
+
+  disableButtons(true);
+  comparisons = swaps = 0;
+  updateStats();
+
+  if (A.length > 200) {
+    selectionSortInstant(A);
+    disableButtons(false);
+    return;
+  }
+
+  await selectionSortRecursive(A, A.length, 0, currentId);
+
+  if (currentId === animationId) {
+    disableButtons(false);
+  }
 }
 
 
 function fastFinish() {
   fastMode = true;
-
-  const A1 = JSON.parse(JSON.stringify(A));
-  const A2 = JSON.parse(JSON.stringify(A));
-
-  const start = performance.now();
-  selectionSortInstant(A1);
-  const end = performance.now();
-
-  const start1 = performance.now();
-  selectionSortInstantRecursive(A2);
-  const end1 = performance.now();
-
-  console.log(`Runtime Instant (Iteratif): ${(end - start).toFixed(2)} ms`);
-  console.log(`Runtime Instant (Rekursif): ${(end1 - start1).toFixed(2)} ms`);
+  comparisons = swaps = 0;
+  updateStats();
+  selectionSortInstant(A);
 }
 
+function cancelAnimation() {
+  animationId++;          // matikan semua animasi
+  disableButtons(false);  // 🔥 WAJIB
+}
 
 
 /* ================= INIT ================= */

@@ -1,47 +1,78 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
-  <meta charset="UTF-8">
-  <title>Selection Sort + Analisis Kompleksitas</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <title>Selection Sort Visualizer</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
 
-  <h2>Selection Sort (Iteratif & Rekursif)</h2>
+  <header class="header">
+    <h1>Selection Sort Visualizer</h1>
+    <p>Visualisasi Algoritma Iteratif & Rekursif</p>
+  </header>
 
-  <!-- MENU JUMLAH DATA -->
-  <div class="controls">
-    <label>Jumlah Data:
-      <select id="dataSize" onchange="generateData()">
-        <option value="5">5 Data</option>
-        <option value="10">10 Data</option>
-        <option value="50">50 Data</option>
-        <option value="100">100 Data</option>
-        <option value="1000">1000 Data</option>
-      </select>
-    </label>
-  </div>
+  <main class="card">
 
-  <div id="array"></div>
+    <!-- CONTROL TOP -->
+    <div class="controls">
+      <label>
+        Jumlah Data:
+        <select id="dataSize" onchange="generateData()">
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+          <option value="1000">1000</option>
+        </select>
+      </label>
+    </div>
 
-  <div class="controls">
-    <button onclick="runIterative()">Iteratif</button>
-    <button onclick="runRecursive()">Rekursif</button>
-    <button onclick="fastFinish()">⚡ Cepat Selesai</button>
-    <button onclick="resetData()">🔄 Reset</button>
-  </div>
+    <!-- VISUALIZATION -->
+    <div id="array"></div>
 
-  <div class="controls">
-    <label>Kecepatan:
-      <input type="range" min="10" max="1000" value="300" id="speedSlider">
-      <span id="speedValue">300 ms</span>
-    </label>
-  </div>
+    <!-- CONTROL BUTTON -->
+    <div class="controls">
+      <button id="iterBtn" onclick="runIterative()">▶ Iteratif</button>
+      <button id="recBtn" onclick="runRecursive()">↺ Rekursif</button>
+      <button onclick="fastFinish()">⚡ Cepat Selesai</button>
+      <button onclick="resetData()">🔄 Reset</button>
+    </div>
+
+    <!-- SPEED -->
+    <div class="controls">
+      <label>
+        Kecepatan:
+        <input type="range" min="10" max="1000" value="300" id="speedSlider">
+        <span id="speedValue">300 ms</span>
+      </label>
+    </div>
+
+    <!-- STATUS -->
+    <div id="statusText">Status: Idle</div>
+
+    <!-- STATS -->
+    <div class="stats">
+      <div>Perbandingan<br><span id="compareCount">0</span></div>
+      <div>Swap<br><span id="swapCount">0</span></div>
+    </div>
+
+    <!-- LEGEND -->
+    <div class="legend">
+      <span class="default">Default</span>
+      <span class="compare">Compare</span>
+      <span class="min">Minimum</span>
+      <span class="swap">Swap</span>
+      <span class="sorted">Sorted</span>
+    </div>
+
+  </main>
+
+  <footer class="footer">
+    <p>Selection Sort Visualization • Informatics Project</p>
+  </footer>
 
   <script src="script.js"></script>
-
 </body>
-
 </html>
