@@ -1,32 +1,31 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
   <meta charset="UTF-8" />
-  <title>Selection Sort Visualizer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Selection Sort - Multi-Graph Analysis</title>
   <link rel="stylesheet" href="style.css" />
-  <link rel="manifest" href="/manifest.json">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 </head>
-
 <body>
 
   <header class="header">
     <h1>Selection Sort Visualizer</h1>
-    <p>Visualisasi Algoritma Iteratif & Rekursif</p>
+    <p>Analisis Performa: Iteratif (Biru) vs Rekursif (Orange)</p>
   </header>
 
   <main class="card">
-
-    <!-- CONTROL TOP -->
     <div class="controls">
       <label>
         Jumlah Data:
         <select id="dataSize" onchange="generateData()">
           <option value="5">5</option>
           <option value="10">10</option>
-          <option value="50">50</option>
           <option value="100">100</option>
-          <option value="1000">1000</option>
+          <option value="1000" selected>1.000</option>
+          <option value="10000">10.000</option>
+          <option value="50000">50.000</option>
         </select>
       </label>
       <select onchange="setOrder(this.value)">
@@ -35,61 +34,43 @@
       </select>
     </div>
 
-    <!-- VISUALIZATION -->
-    <div id="array"></div>
+    <div id="arrayContainer">
+        <div id="array"></div>
+    </div>
 
-    <!-- CONTROL BUTTON -->
     <div class="controls">
-      <button id="iterBtn" onclick="runIterative()">▶ Iteratif</button>
-      <button id="recBtn" onclick="runRecursive()">↺ Rekursif</button>
-      <button onclick="fastFinish()">⚡ Cepat Selesai</button>
+      <button id="iterBtn" onclick="runIterative()">▶ Jalankan Iteratif</button>
+      <button id="recBtn" onclick="runRecursive()">↺ Jalankan Rekursif</button>
       <button onclick="resetData()">🔄 Reset</button>
+      <button id="benchmarkBtn" onclick="runBenchmark()" style="background: #059669;">📊 Mulai Benchmark Perbandingan</button>
     </div>
 
-    <!-- SPEED -->
-    <div class="controls">
-      <label>
-        Kecepatan:
-        <input type="range" min="10" max="1000" value="300" id="speedSlider">
-        <span id="speedValue">300 ms</span>
-      </label>
-
-    </div>
-
-    <!-- STATUS -->
     <div id="statusText">Status: Idle</div>
 
-    <!-- STATS -->
     <div class="stats">
       <div>Perbandingan<br><span id="compareCount">0</span></div>
       <div>Swap<br><span id="swapCount">0</span></div>
+      <div>Waktu Eksekusi<br><span id="timeExec">0.00 ms</span></div>
     </div>
 
-    <!-- LEGEND -->
-    <div class="legend">
-      <span class="default">Default</span>
-      <span class="compare">Compare</span>
-      <span class="min">Minimum</span>
-      <span class="swap">Swap</span>
-      <span class="sorted">Sorted</span>
+    <div class="chart-container main-chart">
+      <h3 style="text-align:center;">Ringkasan Performa: 5 - 50.000 Data</h3>
+      <div class="canvas-holder">
+        <canvas id="summaryChart"></canvas>
+      </div>
     </div>
 
+    <hr class="divider">
 
-
-
+    <h2 class="sub-title">Detail Uji Coba (10x Trial per Ukuran)</h2>
+    <div class="charts-wrapper" id="trialChartsContainer">
+      </div>
   </main>
 
   <footer class="footer">
-    <p>Selection Sort Visualization • Informatics Project</p>
+    <p>Selection Sort Project • Analisis Algoritma 2025</p>
   </footer>
 
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/service-worker.js');
-    }
-  </script>
   <script src="script.js"></script>
-
 </body>
-
 </html>
