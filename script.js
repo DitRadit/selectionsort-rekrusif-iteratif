@@ -7,7 +7,6 @@ let swaps = 0;
 let isAscending = true;
 let charts = { summary: null, trials: {} };
 
-// Mendaftarkan plugin datalabels
 Chart.register(ChartDataLabels);
 
 const container = document.getElementById("array");
@@ -47,7 +46,7 @@ function render() {
   for(let i = 0; i < displayLimit; i++) {
     const bar = document.createElement("div");
     bar.className = "bar " + A[i].state;
-    bar.style.height = A[i].nim * 1.5 + "px";
+    bar.style.height = (A[i].nim * 1.5) + "px";
     container.appendChild(bar);
   }
 }
@@ -91,9 +90,44 @@ const selectionSortRecursiveTrampolined = trampoline(function self(arr, i = 0) {
   return () => self(arr, i + 1);
 });
 
+/* ================= CONTROL (DIPERBAIKI) ================= */
+function runIterative() {
+  resetData(); // Reset ke data acak
+  statusText.innerText = "Status: Sedang Mengurutkan (Iteratif)...";
+  
+  // Gunakan setTimeout agar browser sempat merender tulisan status
+  setTimeout(() => {
+    const t0 = performance.now();
+    selectionSortIterative(A);
+    const t1 = performance.now();
+    
+    updateStats(t1 - t0);
+    A.forEach(x => x.state = "sorted");
+    render();
+    statusText.innerText = "Status: Selesai (Iteratif)";
+  }, 50); 
+}
+
+function runRecursive() {
+  resetData(); 
+  statusText.innerText = "Status: Sedang Mengurutkan (Rekursif)...";
+  
+  setTimeout(() => {
+    const t0 = performance.now();
+    selectionSortRecursiveTrampolined(A);
+    const t1 = performance.now();
+    
+    updateStats(t1 - t0);
+    A.forEach(x => x.state = "sorted");
+    render();
+    statusText.innerText = "Status: Selesai (Rekursif)";
+  }, 50);
+}
+
 /* ================= CHARTS LOGIC ================= */
 function initCharts() {
-  // 1. KONFIGURASI GRAFIK RINGKASAN (DENGAN LABEL)
+  if (charts.summary) charts.summary.destroy(); // Hapus chart lama jika ada
+
   const ctxSum = document.getElementById('summaryChart').getContext('2d');
   charts.summary = new Chart(ctxSum, {
     type: 'line',
@@ -109,7 +143,7 @@ function initCharts() {
       maintainAspectRatio: false,
       plugins: { 
         datalabels: { 
-          display: true, // Label diaktifkan khusus di grafik ini
+          display: true,
           align: (context) => context.datasetIndex === 0 ? 'top' : 'bottom',
           anchor: (context) => context.datasetIndex === 0 ? 'end' : 'start',
           offset: 8,
@@ -118,17 +152,12 @@ function initCharts() {
         } 
       },
       scales: { 
-        y: { 
-          beginAtZero: true, 
-          grace: '15%',
-          title: { display: true, text: 'Waktu Eksekusi (ms)', font: { weight: 'bold' } }
-        },
-        x: { title: { display: true, text: 'Jumlah Data (n)', font: { weight: 'bold' } } }
+        y: { beginAtZero: true, grace: '15%', title: { display: true, text: 'Waktu (ms)' } },
+        x: { title: { display: true, text: 'Jumlah Data (n)' } }
       }
     }
   });
 
-  // 2. KONFIGURASI GRAFIK DETAIL (TANPA LABEL)
   const trialContainer = document.getElementById('trialChartsContainer');
   trialContainer.innerHTML = '';
   sizes.forEach(size => {
@@ -150,13 +179,10 @@ function initCharts() {
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { 
-          datalabels: { display: false }, // Label dinonaktifkan di grafik detail
-          legend: { display: false } 
-        },
+        plugins: { datalabels: { display: false }, legend: { display: false } },
         scales: { 
-          y: { beginAtZero: true, title: { display: true, text: 'ms', font: { size: 10 } } },
-          x: { title: { display: true, text: 'Trial ke-n', font: { size: 10 } } }
+          y: { beginAtZero: true },
+          x: { title: { display: true, text: 'Trial' } }
         }
       }
     });
