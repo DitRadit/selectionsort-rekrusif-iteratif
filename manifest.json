@@ -1,7 +1,7 @@
 {
     "name": "PWA Sorting",
     "short_name": "Sorting",
-    "start_url": "/?home=true",
+    "start_url": "/selectionsort-rekrusif-iteratif/index.html",
     "icons": [
   {
     "src": "icons/manifest-icon-192.maskable.png",
@@ -29,7 +29,7 @@
   }
 ],
     "theme_color": "#000000",
-    "background_color": "#FFFFF",
-    "display": "fullscreen",
+    "background_color": "#FFFFFF",
+    "display": "standalone",
     "orientation": "portrait"
 }

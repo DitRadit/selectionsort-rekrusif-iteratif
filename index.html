@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Selection Sort - Multi-Graph Analysis</title>
   <link rel="stylesheet" href="style.css" />
-  <link rel="manifest" href="/manifest.json" />
+  <link rel="manifest" href="/selectionsort-rekrusif-iteratif/manifest.json" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 </head>
@@ -84,7 +84,7 @@
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
+        navigator.serviceWorker.register('/selectionsort-rekrusif-iteratif/service-worker.js')
           .then(registration => {
             console.log('Service Worker terdaftar:', registration.scope);
           })
@@ -95,7 +95,7 @@
     }
   </script>
 
-  <script src="script.js"></script>
+  <script src="/script.js"></script>
 
 </body>
 
