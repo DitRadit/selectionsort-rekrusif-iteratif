@@ -1,7 +1,7 @@
 {
     "name": "PWA Sorting",
     "short_name": "Sorting",
-    "start_url": "/selectionsort-rekrusif-iteratif/index.html",
+    "start_url": "./index.html?home=true",
     "icons": [
   {
     "src": "icons/manifest-icon-192.maskable.png",
