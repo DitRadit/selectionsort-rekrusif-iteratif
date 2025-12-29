@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Selection Sort - Multi-Graph Analysis</title>
   <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="/manifest.json" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 </head>
+
 <body>
 
   <header class="header">
@@ -35,14 +38,21 @@
     </div>
 
     <div id="arrayContainer">
-        <div id="array"></div>
+      <div id="array"></div>
     </div>
 
     <div class="controls">
       <button id="iterBtn" onclick="runIterative()">▶ Jalankan Iteratif</button>
       <button id="recBtn" onclick="runRecursive()">↺ Jalankan Rekursif</button>
       <button onclick="resetData()">🔄 Reset</button>
-      <button id="benchmarkBtn" onclick="runBenchmark()" style="background: #059669;">📊 Mulai Benchmark Perbandingan</button>
+      <button id="benchmarkBtn" onclick="runBenchmark()" style="background: #059669;">📊 Mulai Benchmark
+        Perbandingan</button>
+      <label>
+        Kecepatan Animasi:
+        <input type="range" id="speedSlider" min="50" max="1000" step="50" value="500"
+          oninput="updateSpeed(this.value)">
+        <span id="speedValue">500 ms</span>
+      </label>
     </div>
 
     <div id="statusText">Status: Idle</div>
@@ -64,13 +74,29 @@
 
     <h2 class="sub-title">Detail Uji Coba (10x Trial per Ukuran)</h2>
     <div class="charts-wrapper" id="trialChartsContainer">
-      </div>
+    </div>
   </main>
 
   <footer class="footer">
     <p>Selection Sort Project • Analisis Algoritma 2025</p>
   </footer>
 
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(registration => {
+            console.log('Service Worker terdaftar:', registration.scope);
+          })
+          .catch(error => {
+            console.log('SW gagal:', error);
+          });
+      });
+    }
+  </script>
+
   <script src="script.js"></script>
+
 </body>
+
 </html>

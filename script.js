@@ -1,4 +1,3 @@
-/* ================= GLOBAL DATA ================= */
 const sizes = [5, 10, 100, 1000, 10000, 50000];
 let dataAwal = [];
 let A = [];
@@ -7,6 +6,7 @@ let swaps = 0;
 let isAscending = true;
 let charts = { summary: null, trials: {} };
 
+
 Chart.register(ChartDataLabels);
 
 const container = document.getElementById("array");
@@ -14,6 +14,113 @@ const compareText = document.getElementById("compareCount");
 const swapText = document.getElementById("swapCount");
 const timeText = document.getElementById("timeExec");
 const statusText = document.getElementById("statusText");
+let ANIM_DELAY = 500;
+
+
+function updateSpeed(val) {
+  ANIM_DELAY = Number(val);
+  document.getElementById("speedValue").innerText = ANIM_DELAY + " ms";
+}
+
+
+function sleep(ms = ANIM_DELAY) {
+  return new Promise(r => setTimeout(r, ms));
+}
+
+
+function clearState() {
+  A.forEach(x => x.state = "default");
+}
+
+async function selectionSortIterativeAnimated(arr) {
+  const n = arr.length;
+
+  for (let i = 0; i < n - 1; i++) {
+    let bestIdx = i;
+    arr[i].state = "active";
+    render();
+    await sleep();
+
+    for (let j = i + 1; j < n; j++) {
+      arr[j].state = "compare";
+      comparisons++;
+      render();
+      await sleep();
+
+      if (isBetter(arr[j].nim, arr[bestIdx].nim)) {
+        arr[bestIdx].state = "default";
+        bestIdx = j;
+        arr[bestIdx].state = "active";
+        render();
+        await sleep();
+      } else {
+        arr[j].state = "default";
+      }
+    }
+
+    if (bestIdx !== i) {
+      [arr[i], arr[bestIdx]] = [arr[bestIdx], arr[i]];
+      swaps++;
+      render();
+      await sleep();
+    }
+
+    arr[i].state = "sorted";
+    clearState();
+    render();
+  }
+
+  arr[n - 1].state = "sorted";
+  render();
+}
+
+async function selectionSortRecursiveAnimated(arr) {
+  const n = arr.length;
+  const stack = [0];
+
+  while (stack.length) {
+    const i = stack.pop();
+    if (i >= n - 1) continue;
+
+    let bestIdx = i;
+    arr[i].state = "active";
+    render();
+    await sleep();
+
+    for (let j = i + 1; j < n; j++) {
+      arr[j].state = "compare";
+      comparisons++;
+      render();
+      await sleep();
+
+      if (isBetter(arr[j].nim, arr[bestIdx].nim)) {
+        arr[bestIdx].state = "default";
+        bestIdx = j;
+        arr[bestIdx].state = "active";
+        render();
+        await sleep();
+      } else {
+        arr[j].state = "default";
+      }
+    }
+
+    if (bestIdx !== i) {
+      [arr[i], arr[bestIdx]] = [arr[bestIdx], arr[i]];
+      swaps++;
+      render();
+      await sleep();
+    }
+
+    arr[i].state = "sorted";
+    clearState();
+    render();
+
+    stack.push(i + 1);
+  }
+}
+
+
+
 
 /* ================= UTIL ================= */
 function updateStats(time = 0) {
@@ -43,13 +150,26 @@ function generateData() {
 function render() {
   const displayLimit = Math.min(A.length, 1000);
   container.innerHTML = "";
-  for(let i = 0; i < displayLimit; i++) {
+
+  for (let i = 0; i < displayLimit; i++) {
+    const wrapper = document.createElement("div");
+    wrapper.className = "bar-wrapper";
+
+    const value = document.createElement("div");
+    value.className = "bar-value";
+    value.innerText = A[i].nim;
+
     const bar = document.createElement("div");
     bar.className = "bar " + A[i].state;
     bar.style.height = (A[i].nim * 1.5) + "px";
-    container.appendChild(bar);
+
+    wrapper.appendChild(value);
+    wrapper.appendChild(bar);
+    container.appendChild(wrapper);
   }
 }
+
+
 
 function resetData() {
   comparisons = 0; swaps = 0;
@@ -59,70 +179,92 @@ function resetData() {
   statusText.innerText = "Status: Idle";
 }
 
-/* ================= SORTING LOGIC ================= */
 function selectionSortIterative(arr) {
-  for (let i = 0; i < arr.length - 1; i++) {
-    let minIdx = i;
-    for (let j = i + 1; j < arr.length; j++) {
+  const n = arr.length;
+
+  for (let i = 0; i < n - 1; i++) {
+    let bestIdx = i;
+
+    for (let j = i + 1; j < n; j++) {
       comparisons++;
-      if (isBetter(arr[j].nim, arr[minIdx].nim)) minIdx = j;
+
+      if (isBetter(arr[j].nim, arr[bestIdx].nim)) {
+        bestIdx = j;
+      }
     }
-    if (minIdx !== i) { [arr[i], arr[minIdx]] = [arr[minIdx], arr[i]]; swaps++; }
+
+    if (bestIdx !== i) {
+      [arr[i], arr[bestIdx]] = [arr[bestIdx], arr[i]];
+      swaps++;
+    }
   }
 }
 
-function trampoline(fn) {
-  return function(...args) {
-    let result = fn.apply(this, args);
-    while (typeof result === 'function') result = result();
-    return result;
-  };
+function selectionSortRecursive(arr) {
+  const n = arr.length;
+  const stack = [0];
+
+  while (stack.length) {
+    const i = stack.pop();
+    if (i >= n - 1) continue;
+
+    let bestIdx = i;
+
+    for (let j = i + 1; j < n; j++) {
+      comparisons++;
+      if (isBetter(arr[j].nim, arr[bestIdx].nim)) {
+        bestIdx = j;
+      }
+    }
+
+    if (bestIdx !== i) {
+      [arr[i], arr[bestIdx]] = [arr[bestIdx], arr[i]];
+      swaps++;
+    }
+
+    stack.push(i + 1);
+  }
 }
 
-const selectionSortRecursiveTrampolined = trampoline(function self(arr, i = 0) {
-  if (i >= arr.length - 1) return null;
-  let minIdx = i;
-  for (let j = i + 1; j < arr.length; j++) {
-    comparisons++;
-    if (isBetter(arr[j].nim, arr[minIdx].nim)) minIdx = j;
-  }
-  if (minIdx !== i) { [arr[i], arr[minIdx]] = [arr[minIdx], arr[i]]; swaps++; }
-  return () => self(arr, i + 1);
-});
 
 /* ================= CONTROL (DIPERBAIKI) ================= */
-function runIterative() {
-  resetData(); // Reset ke data acak
-  statusText.innerText = "Status: Sedang Mengurutkan (Iteratif)...";
-  
-  // Gunakan setTimeout agar browser sempat merender tulisan status
-  setTimeout(() => {
+async function runIterative() {
+  resetData();
+  statusText.innerText = "Status: Sorting Iteratif...";
+
+  if (A.length <= 10) {
+    await selectionSortIterativeAnimated(A);
+    updateStats(0);
+  } else {
     const t0 = performance.now();
     selectionSortIterative(A);
-    const t1 = performance.now();
-    
-    updateStats(t1 - t0);
+    updateStats(performance.now() - t0);
     A.forEach(x => x.state = "sorted");
     render();
-    statusText.innerText = "Status: Selesai (Iteratif)";
-  }, 50); 
+  }
+
+  statusText.innerText = "Status: Selesai (Iteratif)";
 }
 
-function runRecursive() {
-  resetData(); 
-  statusText.innerText = "Status: Sedang Mengurutkan (Rekursif)...";
-  
-  setTimeout(() => {
+
+async function runRecursive() {
+  resetData();
+  statusText.innerText = "Status: Sorting Rekursif...";
+
+  if (A.length <= 10) {
+    await selectionSortRecursiveAnimated(A);
+    updateStats(0);
+  } else {
     const t0 = performance.now();
-    selectionSortRecursiveTrampolined(A);
-    const t1 = performance.now();
-    
-    updateStats(t1 - t0);
+    selectionSortRecursive(A);
+    updateStats(performance.now() - t0);
     A.forEach(x => x.state = "sorted");
     render();
-    statusText.innerText = "Status: Selesai (Rekursif)";
-  }, 50);
+  }
+
+  statusText.innerText = "Status: Selesai (Rekursif)";
 }
+
 
 /* ================= CHARTS LOGIC ================= */
 function initCharts() {
@@ -190,6 +332,7 @@ function initCharts() {
 }
 
 async function runBenchmark() {
+  document.getElementById("speedSlider").disabled = true;
   const sumIter = []; const sumRec = [];
   statusText.innerText = "Status: Benchmark Sedang Berjalan...";
 
@@ -210,7 +353,7 @@ async function runBenchmark() {
       let t2 = performance.now();
       for(let i = 0; i < iterations; i++) {
         let cR = JSON.parse(JSON.stringify(testData));
-        selectionSortRecursiveTrampolined(cR);
+        selectionSortRecursive(cR);
       }
       tRec.push((performance.now() - t2) / iterations);
       
@@ -229,6 +372,8 @@ async function runBenchmark() {
   charts.summary.data.datasets[1].data = sumRec;
   charts.summary.update();
   statusText.innerText = "Status: Benchmark Selesai!";
+  document.getElementById("speedSlider").disabled = false;
+
 }
 
 window.onload = () => { generateData(); initCharts(); };

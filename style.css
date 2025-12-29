@@ -1,5 +1,10 @@
 /* ===== RESET & BASE ===== */
 * { box-sizing: border-box; }
+.bar.default { background: #94a3b8; }
+.bar.compare { background: #f59e0b; }
+.bar.active  { background: #ef4444; }
+.bar.sorted  { background: #22c55e; }
+
 
 body {
   margin: 0;
@@ -30,6 +35,12 @@ body {
   margin: 15px 0;
   flex-wrap: wrap;
 }
+
+.controls input[type="range"] {
+  vertical-align: middle;
+  margin: 0 10px;
+}
+
 
 select {
   padding: 10px 16px;
@@ -74,13 +85,25 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   justify-content: center;
 }
 
-.bar {
-  flex: 1;
-  min-width: 1px;
-  background: #6366f1;
-  margin: 0 0.5px;
-  border-radius: 2px 2px 0 0;
+.bar-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 1px;
 }
+
+.bar-value {
+  font-size: 10px;
+  margin-bottom: 2px;
+  color: #111827;
+  user-select: none;
+}
+
+.bar {
+  width: 10px;
+  background-color: #4f46e5;
+}
+
 
 .sorted { background: #10b981 !important; }
 
